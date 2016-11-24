@@ -15,7 +15,8 @@ class Defaults:
     # ----------------------
     # Experiment Parameters
     # ----------------------
-    STEPS_PER_EPOCH = 50000
+    # Daniel: I decreased this to 40000 for first run to get results quicker.
+    STEPS_PER_EPOCH = 50000 
     EPOCHS = 100
     STEPS_PER_TEST = 10000
 
@@ -55,6 +56,19 @@ class Defaults:
     MAX_START_NULLOPS = 0
     DETERMINISTIC = True
     CUDNN_DETERMINISTIC = False
+
+    # ----------------------
+    # Daniel's extra parameters:
+    # ----------------------
+    USE_HUMAN_DATA = False
+    HUMAN_NET_PATH = "../human_nets/" # TODO better put a default here!
+    # For now, to keep things simple, the epislon_min parameter from above
+    # determines how many random actions. So with 0.1, for instance, we will
+    # start out by playing 90% of actions determined from the human net, and
+    # that ratio gradually decreases to 0% (while 90% will come from the
+    # Q-learner). In other words, always leave 10% of actions for random
+    # choices, which helps when certain actions are only supposed to be executed
+    # O(1) times, such as FIRE in Breakout.
 
 if __name__ == "__main__":
     launcher.launch(sys.argv[1:], Defaults, __doc__)

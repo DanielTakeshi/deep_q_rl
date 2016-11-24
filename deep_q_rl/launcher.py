@@ -53,7 +53,6 @@ def process_args(args, defaults, description):
                         default=defaults.REPEAT_ACTION_PROBABILITY, type=float,
                         help=('Probability that action choice will be ' +
                               'ignored (default: %(default)s)'))
-
     parser.add_argument('--update-rule', dest="update_rule",
                         type=str, default=defaults.UPDATE_RULE,
                         help=('deepmind_rmsprop|rmsprop|sgd ' +
@@ -138,6 +137,13 @@ def process_args(args, defaults, description):
                         type=bool, default=defaults.CUDNN_DETERMINISTIC,
                         help=('Whether to use deterministic backprop. ' +
                               '(default: %(default)s)'))
+    # Extra parameters for the "human-guided net."
+    parser.add_argument('--use_human_data', dest="use_human_data", type=bool,
+                        default=defaults.USE_HUMAN_DATA, help=('Whether to '+
+                        'use data from humans. (default: %(default)s)'))
+    parser.add_argument('--human_net_path', dest="human_net_path", type=str,
+                        default=defaults.HUMAN_NET_PATH, help=('The human net '+
+                        'to run (default: %(default)s)'))
 
     parameters = parser.parse_args(args)
     if parameters.experiment_prefix is None:
@@ -199,10 +205,11 @@ def launch(args, defaults, description):
     ale.setBool('display_screen', parameters.display_screen)
     ale.setFloat('repeat_action_probability',
                  parameters.repeat_action_probability)
-
     ale.loadROM(full_rom_path)
-
     num_actions = len(ale.getMinimalActionSet())
+
+    # Have a human net path (there's a parameter which can ignore this).
+    full_human_net_path = parameters.human_net_path
 
     if parameters.nn_file is None:
         network = q_network.DeepQLearner(defaults.RESIZED_WIDTH,
@@ -247,9 +254,7 @@ def launch(args, defaults, description):
                                               parameters.max_start_nullops,
                                               rng)
 
-
     experiment.run()
-
 
 
 if __name__ == '__main__':
