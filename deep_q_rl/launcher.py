@@ -212,7 +212,7 @@ def launch(args, defaults, description):
     map_action_index = None 
     human_qnet = None
 
-    if parameters.use_human_net:
+    if parameters.use_human_data:
         # human_qnet = human_q_net.load_network(parameters.human_net_path)
         if rom == 'breakout':
             map_action_index = {0:0, 1:4, 2:3}
