@@ -11,6 +11,7 @@ import ale_python_interface
 import cPickle
 import numpy as np
 import theano
+import sys
 
 import ale_experiment
 import ale_agent
@@ -165,9 +166,7 @@ def process_args(args, defaults, description):
         # of action choices.
         parameters.freeze_interval = (parameters.freeze_interval //
                                       parameters.update_frequency)
-
     return parameters
-
 
 
 def launch(args, defaults, description):
@@ -208,8 +207,17 @@ def launch(args, defaults, description):
     ale.loadROM(full_rom_path)
     num_actions = len(ale.getMinimalActionSet())
 
-    # Have a human net path (there's a parameter which can ignore this).
-    full_human_net_path = parameters.human_net_path
+    # Logic to deal with loading a separate network trained on human data.
+    # Must also address mapping from human net (0,1,2,...) to ALE.
+    map_action_index = None 
+    human_qnet = None
+
+    if parameters.use_human_net:
+        # human_qnet = human_q_net.load_network(parameters.human_net_path)
+        if rom == 'breakout':
+            map_action_index = {0:0, 1:4, 2:3}
+        else:
+            raise ValueError("rom={} doesn't have action mapping".format(rom))
 
     if parameters.nn_file is None:
         network = q_network.DeepQLearner(defaults.RESIZED_WIDTH,
