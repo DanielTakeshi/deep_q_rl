@@ -12,8 +12,8 @@ import theano.tensor as T
 import lasagne
 
 
-def build_nature_network(self, input_width, input_height, output_dim,
-                         num_frames, batch_size):
+def build_nature_network(input_width, input_height, output_dim, num_frames,
+                         batch_size):
     """
     Build a large network consistent with the DeepMind Nature paper.
     """
@@ -75,13 +75,12 @@ def build_nature_network(self, input_width, input_height, output_dim,
     return l_out
 
 
-def build_nature_network_dnn(self, input_width, input_height, output_dim,
-                             num_frames, batch_size):
+def build_nature_network_dnn(input_width, input_height, output_dim, num_frames,
+                             batch_size):
     """
     Build a large network consistent with the DeepMind Nature paper.
     """
     from lasagne.layers import dnn
-
     l_in = lasagne.layers.InputLayer(
         shape=(None, num_frames, input_width, input_height)
     )
@@ -135,8 +134,8 @@ def build_nature_network_dnn(self, input_width, input_height, output_dim,
     return l_out
 
 
-def build_nips_network(self, input_width, input_height, output_dim,
-                       num_frames, batch_size):
+def build_nips_network(input_width, input_height, output_dim, num_frames,
+                       batch_size):
     """
     Build a network consistent with the 2013 NIPS paper.
     """
@@ -190,18 +189,16 @@ def build_nips_network(self, input_width, input_height, output_dim,
     return l_out
 
 
-def build_nips_network_dnn(self, input_width, input_height, output_dim,
-                           num_frames, batch_size):
+def build_nips_network_dnn(input_width, input_height, output_dim, num_frames,
+                           batch_size): 
     """
     Build a network consistent with the 2013 NIPS paper.
     """
     # Import it here, in case it isn't installed.
     from lasagne.layers import dnn
-
     l_in = lasagne.layers.InputLayer(
         shape=(None, num_frames, input_width, input_height)
     )
-
 
     l_conv1 = dnn.Conv2DDNNLayer(
         l_in,
@@ -246,13 +243,12 @@ def build_nips_network_dnn(self, input_width, input_height, output_dim,
     return l_out
 
 
-def build_linear_network(self, input_width, input_height, output_dim,
-                         num_frames, batch_size):
+def build_linear_network(input_width, input_height, output_dim, num_frames, 
+                         batch_size):
     """
     Build a simple linear learner.  Useful for creating
     tests that sanity-check the weight update code.
     """
-
     l_in = lasagne.layers.InputLayer(
         shape=(None, num_frames, input_width, input_height)
     )
@@ -266,6 +262,27 @@ def build_linear_network(self, input_width, input_height, output_dim,
     )
 
     return l_out
+
+
+def build_network(network_type, input_width, input_height, output_dim,
+                  num_frames, batch_size):
+    if network_type == "nature_cuda":
+        return build_nature_network(input_width, input_height, output_dim,
+                                    num_frames, batch_size)
+    if network_type == "nature_dnn":
+        return build_nature_network_dnn(input_width, input_height, output_dim,
+                                        num_frames, batch_size)
+    elif network_type == "nips_cuda":
+        return build_nips_network(input_width, input_height, output_dim,
+                                  num_frames, batch_size)
+    elif network_type == "nips_dnn":
+        return build_nips_network_dnn(input_width, input_height, output_dim,
+                                      num_frames, batch_size)
+    elif network_type == "linear":
+        return build_linear_network(input_width, input_height, output_dim,
+                                    num_frames, batch_size)
+    else:
+        raise ValueError("Unrecognized network: {}".format(network_type))
 
 
 if __name__ == "__main__":
