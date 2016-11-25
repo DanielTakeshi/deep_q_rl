@@ -12,6 +12,7 @@ import cPickle
 import numpy as np
 import theano
 import sys
+import time
 
 import ale_experiment
 import ale_agent
@@ -176,7 +177,8 @@ def launch(args, defaults, description):
     Execute a complete training run.
     """
 
-    logging.basicConfig(level=logging.INFO)
+    time_str = time.strftime("_%m-%d-%H-%M_", time.localtime())
+    logging.basicConfig(filename='log' +time_str+ '.txt', level=logging.INFO)
     parameters = process_args(args, defaults, description)
 
     if parameters.rom.endswith('.bin'):

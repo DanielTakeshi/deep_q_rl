@@ -39,7 +39,7 @@ class NeuralAgent(object):
         self.image_height = self.network.input_height
 
         # CREATE A FOLDER TO HOLD RESULTS
-        time_str = time.strftime("_%m-%d-%H-%M_", time.gmtime())
+        time_str = time.strftime("_%m-%d-%H-%M_", time.localtime())
         self.exp_dir = self.exp_pref + time_str + \
                        "{}".format(self.network.lr).replace(".", "p") + "_" \
                        + "{}".format(self.network.discount).replace(".", "p")
