@@ -10,19 +10,17 @@ import os
 import cPickle
 import time
 import logging
-
-import numpy as np
-
-import ale_data_set
-
 import sys
 sys.setrecursionlimit(10000)
+import numpy as np
+import ale_data_set
 
 class NeuralAgent(object):
 
     def __init__(self, q_network, epsilon_start, epsilon_min,
                  epsilon_decay, replay_memory_size, exp_pref,
-                 replay_start_size, update_frequency, rng):
+                 replay_start_size, update_frequency, rng, 
+                 human_qnet=None):
 
         self.network = q_network
         self.epsilon_start = epsilon_start
@@ -33,6 +31,8 @@ class NeuralAgent(object):
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
         self.rng = rng
+        # Detect usage via "self.human_qnet != None"
+        self.human_qnet = human_qnet 
 
         self.phi_length = self.network.num_frames
         self.image_width = self.network.input_width
@@ -43,15 +43,12 @@ class NeuralAgent(object):
         self.exp_dir = self.exp_pref + time_str + \
                        "{}".format(self.network.lr).replace(".", "p") + "_" \
                        + "{}".format(self.network.discount).replace(".", "p")
-
         try:
             os.stat(self.exp_dir)
         except OSError:
             os.makedirs(self.exp_dir)
 
         self.num_actions = self.network.num_actions
-
-
         self.data_set = ale_data_set.DataSet(width=self.image_width,
                                              height=self.image_height,
                                              rng=rng,
@@ -70,7 +67,6 @@ class NeuralAgent(object):
                                  self.epsilon_decay)
         else:
             self.epsilon_rate = 0
-
         self.testing = False
 
         self._open_results_file()
@@ -134,14 +130,10 @@ class NeuralAgent(object):
 
         # We report the mean loss for every epoch.
         self.loss_averages = []
-
         self.start_time = time.time()
         return_action = self.rng.randint(0, self.num_actions)
-
         self.last_action = return_action
-
         self.last_img = observation
-
         return return_action
 
 
@@ -157,6 +149,7 @@ class NeuralAgent(object):
             plt.grid(color='r', linestyle='-', linewidth=1)
         plt.show()
 
+
     def step(self, reward, observation):
         """
         This method is called each time step.
@@ -167,7 +160,6 @@ class NeuralAgent(object):
 
         Returns:
            An integer action.
-
         """
 
         self.step_counter += 1
@@ -177,10 +169,8 @@ class NeuralAgent(object):
             self.episode_reward += reward
             action = self._choose_action(self.test_data_set, .05,
                                          observation, np.clip(reward, -1, 1))
-
         #NOT TESTING---------------------------
         else:
-
             if len(self.data_set) > self.replay_start_size:
                 self.epsilon = max(self.epsilon_min,
                                    self.epsilon - self.epsilon_rate)
@@ -199,26 +189,51 @@ class NeuralAgent(object):
                                              observation,
                                              np.clip(reward, -1, 1))
 
-
         self.last_action = action
         self.last_img = observation
-
         return action
+
 
     def _choose_action(self, data_set, epsilon, cur_img, reward):
         """
-        Add the most recent data to the data set and choose
-        an action based on the current policy.
-        """
+        Add the most recent data to the data set and choose an action based on
+        the current policy.
 
+        New in Daniel's version: utilize self.human_qnet as appropriate. That
+        happens during the first case (self.step_counter is only to ensure that
+        we see at least 4 frames before choosing an action based on a state).
+        Note that here, we need our code to return consecutive actions (for
+        Breakout, we'd return 0, 1, 2, or 3), because ale_experiment has the
+        mapping array = [0 1 3 4] which maps array[i] into the real integer that
+        we input into the ALE). I guess that makes sense, since the
+        ale_experiment file is the one which actually performs the step.
+        """
         data_set.add_sample(self.last_img, self.last_action, reward, False)
         if self.step_counter >= self.phi_length:
             phi = data_set.phi(cur_img)
-            action = self.network.choose_action(phi, epsilon)
+
+            if self.human_qnet == None:
+                action = self.network.choose_action(phi, epsilon)
+            else:
+                # Daniel: older code here was just one line:
+                #   action = self.network.choose_action(phi, epsilon)
+                #
+                # Before, we took random actions with probability epsilon. New rule:
+                #   Pr(1-epsilon), take action according to self.network
+                #   Pr(epsilon-0.1), take action according to self.human_qnet
+                #   Pr(0.1), take a random action.
+                r = np.random.rand()
+                if r < 0.1:
+                    action = self.rng.randint(0, self.num_actions)
+                elif r < epsilon:
+                    action = self.human_qnet.predict_action_from_state(phi)
+                else:
+                    action = self.network.choose_action(phi, epsilon)
         else:
             action = self.rng.randint(0, self.num_actions)
 
         return action
+
 
     def _do_training(self):
         """
@@ -243,7 +258,6 @@ class NeuralAgent(object):
         Returns:
             None
         """
-
         self.episode_reward += reward
         self.step_counter += 1
         total_time = time.time() - self.start_time
@@ -255,13 +269,11 @@ class NeuralAgent(object):
                 self.episode_counter += 1
                 self.total_reward += self.episode_reward
         else:
-
             # Store the latest sample.
             self.data_set.add_sample(self.last_img,
                                      self.last_action,
                                      np.clip(reward, -1, 1),
                                      True)
-
             rho = 0.98
             self.steps_sec_ema *= rho
             self.steps_sec_ema += (1. - rho) * (self.step_counter/total_time)
@@ -281,10 +293,12 @@ class NeuralAgent(object):
         cPickle.dump(self.network, net_file, -1)
         net_file.close()
 
+
     def start_testing(self):
         self.testing = True
         self.total_reward = 0
         self.episode_counter = 0
+
 
     def finish_testing(self, epoch):
         self.testing = False

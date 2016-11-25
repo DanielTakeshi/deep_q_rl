@@ -13,15 +13,22 @@ import lasagne
 
 
 def build_nature_network(input_width, input_height, output_dim, num_frames,
-                         batch_size):
+                         batch_size, human_net, input_var):
     """
     Build a large network consistent with the DeepMind Nature paper.
     """
     from lasagne.layers import cuda_convnet
 
-    l_in = lasagne.layers.InputLayer(
-        shape=(None, num_frames, input_width, input_height)
-    )
+    l_in = None
+    if human_net:
+        l_in = lasagne.layers.InputLayer(
+            shape=(None, num_frames, input_width, input_height),
+            input_var=input_var
+        )
+    else:
+        l_in = lasagne.layers.InputLayer(
+            shape=(None, num_frames, input_width, input_height)
+        )
 
     l_conv1 = cuda_convnet.Conv2DCCLayer(
         l_in,
@@ -76,14 +83,21 @@ def build_nature_network(input_width, input_height, output_dim, num_frames,
 
 
 def build_nature_network_dnn(input_width, input_height, output_dim, num_frames,
-                             batch_size):
+                             batch_size, human_net, input_var):
     """
     Build a large network consistent with the DeepMind Nature paper.
     """
     from lasagne.layers import dnn
-    l_in = lasagne.layers.InputLayer(
-        shape=(None, num_frames, input_width, input_height)
-    )
+
+    if human_net:
+        l_in = lasagne.layers.InputLayer(
+            shape=(None, num_frames, input_width, input_height),
+            input_var=input_var
+        )
+    else:
+        l_in = lasagne.layers.InputLayer(
+            shape=(None, num_frames, input_width, input_height)
+        )
 
     l_conv1 = dnn.Conv2DDNNLayer(
         l_in,
@@ -135,14 +149,22 @@ def build_nature_network_dnn(input_width, input_height, output_dim, num_frames,
 
 
 def build_nips_network(input_width, input_height, output_dim, num_frames,
-                       batch_size):
+                       batch_size, human_net, input_var):
     """
     Build a network consistent with the 2013 NIPS paper.
     """
     from lasagne.layers import cuda_convnet
-    l_in = lasagne.layers.InputLayer(
-        shape=(None, num_frames, input_width, input_height)
-    )
+
+    l_in = None
+    if human_net:
+        l_in = lasagne.layers.InputLayer(
+            shape=(None, num_frames, input_width, input_height),
+            input_var=input_var
+        )
+    else:
+        l_in = lasagne.layers.InputLayer(
+            shape=(None, num_frames, input_width, input_height)
+        )
 
     l_conv1 = cuda_convnet.Conv2DCCLayer(
         l_in,
@@ -190,15 +212,23 @@ def build_nips_network(input_width, input_height, output_dim, num_frames,
 
 
 def build_nips_network_dnn(input_width, input_height, output_dim, num_frames,
-                           batch_size): 
+                           batch_size, human_net, input_var): 
     """
     Build a network consistent with the 2013 NIPS paper.
     """
     # Import it here, in case it isn't installed.
     from lasagne.layers import dnn
-    l_in = lasagne.layers.InputLayer(
-        shape=(None, num_frames, input_width, input_height)
-    )
+
+    l_in = None
+    if human_net:
+        l_in = lasagne.layers.InputLayer(
+            shape=(None, num_frames, input_width, input_height),
+            input_var=input_var
+        )
+    else:
+        l_in = lasagne.layers.InputLayer(
+            shape=(None, num_frames, input_width, input_height)
+        )
 
     l_conv1 = dnn.Conv2DDNNLayer(
         l_in,
@@ -244,7 +274,7 @@ def build_nips_network_dnn(input_width, input_height, output_dim, num_frames,
 
 
 def build_linear_network(input_width, input_height, output_dim, num_frames, 
-                         batch_size):
+                         batch_size, human_net, input_var):
     """
     Build a simple linear learner.  Useful for creating
     tests that sanity-check the weight update code.
@@ -265,22 +295,23 @@ def build_linear_network(input_width, input_height, output_dim, num_frames,
 
 
 def build_network(network_type, input_width, input_height, output_dim,
-                  num_frames, batch_size):
+                  num_frames, batch_size, human_net=False, input_var=None):
+    """ This should be the only method that gets called from other scripts. """
     if network_type == "nature_cuda":
         return build_nature_network(input_width, input_height, output_dim,
-                                    num_frames, batch_size)
+                                    num_frames, batch_size, human_net, input_var)
     if network_type == "nature_dnn":
         return build_nature_network_dnn(input_width, input_height, output_dim,
-                                        num_frames, batch_size)
+                                        num_frames, batch_size, human_net, input_var)
     elif network_type == "nips_cuda":
         return build_nips_network(input_width, input_height, output_dim,
-                                  num_frames, batch_size)
+                                  num_frames, batch_size, human_net, input_var)
     elif network_type == "nips_dnn":
         return build_nips_network_dnn(input_width, input_height, output_dim,
-                                      num_frames, batch_size)
+                                      num_frames, batch_size, human_net, input_var)
     elif network_type == "linear":
         return build_linear_network(input_width, input_height, output_dim,
-                                    num_frames, batch_size)
+                                    num_frames, batch_size, human_net, input_var)
     else:
         raise ValueError("Unrecognized network: {}".format(network_type))
 

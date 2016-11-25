@@ -7,6 +7,7 @@ Author: Nathan Sprague
 import logging
 import numpy as np
 import cv2
+import sys
 
 # Number of rows to crop off the bottom of the (downsampled) screen.
 # This is appropriate for breakout, but it may need to be modified
@@ -105,20 +106,21 @@ class ALEExperiment(object):
         """
         reward = self.ale.act(action)
         index = self.buffer_count % self.buffer_length
-
         self.ale.getScreenGrayscale(self.screen_buffer[index, ...])
-
         self.buffer_count += 1
         return reward
 
+
     def _step(self, action):
-        """ Repeat one action the appopriate number of times and return
-        the summed reward. """
+        """ Repeat one action the appopriate number of times and return the
+        summed reward. Actions here are in the appropriate range, i.e. in
+        Breakout they will be [0,1,3,4].
+        """
         reward = 0
         for _ in range(self.frame_skip):
             reward += self._act(action)
-
         return reward
+
 
     def run_episode(self, max_steps, testing):
         """Run a single training episode.
@@ -129,15 +131,12 @@ class ALEExperiment(object):
         Currently this value will be ignored.
 
         Return: (terminal, num_steps)
-
         """
-
         self._init_episode()
-
         start_lives = self.ale.lives()
-
         action = self.agent.start_episode(self.get_observation())
         num_steps = 0
+
         while True:
             reward = self._step(self.min_action_set[action])
             self.terminal_lol = (self.death_ends_episode and not testing and

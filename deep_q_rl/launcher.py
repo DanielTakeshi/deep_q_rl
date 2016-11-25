@@ -16,6 +16,8 @@ import sys
 import ale_experiment
 import ale_agent
 import q_network
+import human_q_net
+import make_net
 
 def process_args(args, defaults, description):
     """
@@ -202,22 +204,37 @@ def launch(args, defaults, description):
             ale.setBool('sound', False) # Sound doesn't work on OSX
 
     ale.setBool('display_screen', parameters.display_screen)
-    ale.setFloat('repeat_action_probability',
-                 parameters.repeat_action_probability)
+    ale.setFloat('repeat_action_probability', parameters.repeat_action_probability)
     ale.loadROM(full_rom_path)
     num_actions = len(ale.getMinimalActionSet())
 
     # Logic to deal with loading a separate network trained on human data.
     # Must also address mapping from human net (0,1,2,...) to ALE.
+    # I know that, for Breakout, my {0,1,2} correspond to {NOOP,LEFT,RIGHT}.
+    # But how should these get mapped to ALE actions? I know 0=noop, 1=fire.
+    # Keep in mind that there's a SECOND mapping that happens after this!
     map_action_index = None 
     human_qnet = None
 
     if parameters.use_human_data:
-        # human_qnet = human_q_net.load_network(parameters.human_net_path)
-        if rom == 'breakout':
-            map_action_index = {0:0, 1:4, 2:3}
+        if (rom=='breakout' or rom=='breakout.bin'):
+            # **After** this gets applied, we have the mapping [0 1 3 4], which
+            # is game-independent, so the main work is to set map_action_index.
+            # Thus, 0 ==> 0 ==> 0 (NOOP)
+            # Thus, 1 ==> 3 ==> 4 (LEFT)
+            # Thus, 2 ==> 2 ==> 3 (RIGHT)
+            # (The net doesn't use FIRE.)
+            map_action_index = {0:0, 1:3, 2:2}
         else:
             raise ValueError("rom={} doesn't have action mapping".format(rom))
+        human_qnet = human_q_net.HumanQNetwork(defaults.RESIZED_WIDTH,
+                                               defaults.RESIZED_HEIGHT,
+                                               num_actions,
+                                               parameters.phi_length,
+                                               parameters.batch_size,
+                                               parameters.network_type,
+                                               parameters.human_net_path,
+                                               map_action_index)
 
     if parameters.nn_file is None:
         network = q_network.DeepQLearner(defaults.RESIZED_WIDTH,
@@ -248,7 +265,7 @@ def launch(args, defaults, description):
                                   parameters.experiment_prefix,
                                   parameters.replay_start_size,
                                   parameters.update_frequency,
-                                  rng)
+                                  rng, human_qnet)
 
     experiment = ale_experiment.ALEExperiment(ale, agent,
                                               defaults.RESIZED_WIDTH,
