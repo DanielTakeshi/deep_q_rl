@@ -161,7 +161,6 @@ class NeuralAgent(object):
         Returns:
            An integer action.
         """
-
         self.step_counter += 1
 
         #TESTING---------------------------
@@ -178,12 +177,11 @@ class NeuralAgent(object):
                 action = self._choose_action(self.data_set, self.epsilon,
                                              observation,
                                              np.clip(reward, -1, 1))
-
                 if self.step_counter % self.update_frequency == 0:
                     loss = self._do_training()
                     self.batch_counter += 1
                     self.loss_averages.append(loss)
-
+                
             else: # Still gathering initial random data...
                 action = self._choose_action(self.data_set, self.epsilon,
                                              observation,
@@ -222,13 +220,16 @@ class NeuralAgent(object):
                 #   Pr(1-epsilon), take action according to self.network
                 #   Pr(epsilon-0.1), take action according to self.human_qnet
                 #   Pr(0.1), take a random action.
+                #
+                # BTW, network.choose_action takes epsilon as a parameter, but
+                # when we call it we know we DON'T want random; hence set to 0.
                 r = np.random.rand()
                 if r < 0.1:
                     action = self.rng.randint(0, self.num_actions)
                 elif r < epsilon:
                     action = self.human_qnet.predict_action_from_state(phi)
                 else:
-                    action = self.network.choose_action(phi, epsilon)
+                    action = self.network.choose_action(phi, epsilon=0)
         else:
             action = self.rng.randint(0, self.num_actions)
 

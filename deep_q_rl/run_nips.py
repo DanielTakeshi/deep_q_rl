@@ -16,7 +16,9 @@ class Defaults:
     # Experiment Parameters
     # ----------------------
     # Daniel: I decreased this to 40000 for first run to get results quicker.
-    STEPS_PER_EPOCH = 50000 
+    # Otherwise, that was the only change with the settings (aside from the
+    # extra parameters due to the human net).
+    STEPS_PER_EPOCH = 40000 
     EPOCHS = 100
     STEPS_PER_TEST = 10000
 
