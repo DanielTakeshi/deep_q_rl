@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 def run_watch():
-    command = ['./run_nature.py', '--steps-per-epoch', '0',
+    command = ['./run_nips.py', '--steps-per-epoch', '0',
                '--test-length', '10000', '--nn-file', sys.argv[1],
                '--display-screen']
 

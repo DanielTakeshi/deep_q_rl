@@ -254,7 +254,7 @@ def launch(args, defaults, description):
                                          parameters.batch_accumulator,
                                          rng)
     else:
-        handle = open(parameters.nn_file, 'r')
+        handle = open(parameters.nn_file, 'rb')
         network = cPickle.load(handle)
 
     agent = ale_agent.NeuralAgent(network,
