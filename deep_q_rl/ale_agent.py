@@ -167,7 +167,8 @@ class NeuralAgent(object):
         if self.testing:
             self.episode_reward += reward
             action = self._choose_action(self.test_data_set, .05,
-                                         observation, np.clip(reward, -1, 1))
+                                         observation, np.clip(reward, -1, 1),
+                                         testing=True)
         #NOT TESTING---------------------------
         else:
             if len(self.data_set) > self.replay_start_size:
@@ -192,7 +193,7 @@ class NeuralAgent(object):
         return action
 
 
-    def _choose_action(self, data_set, epsilon, cur_img, reward):
+    def _choose_action(self, data_set, epsilon, cur_img, reward, testing=False):
         """
         Add the most recent data to the data set and choose an action based on
         the current policy.
@@ -210,7 +211,11 @@ class NeuralAgent(object):
         if self.step_counter >= self.phi_length:
             phi = data_set.phi(cur_img)
 
-            if self.human_qnet == None:
+            # If no human net, call network.choose_action() which will run the
+            # action selected from the network with the appropriate epsilon
+            # value. If we have the human net, but are testing, then we will
+            # also do this because we don't want the human net during tests.
+            if self.human_qnet == None or testing:
                 action = self.network.choose_action(phi, epsilon)
             else:
                 # Daniel: older code here was just one line:
@@ -224,7 +229,7 @@ class NeuralAgent(object):
                 # BTW, network.choose_action takes epsilon as a parameter, but
                 # when we call it we know we DON'T want random; hence set to 0.
                 r = np.random.rand()
-                if r < 0.1:
+                if r < self.epsilon_min:
                     action = self.rng.randint(0, self.num_actions)
                 elif r < epsilon:
                     action = self.human_qnet.predict_action_from_state(phi)
