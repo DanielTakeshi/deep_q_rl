@@ -30,3 +30,8 @@ the human net.
 version of (1) here, they're designed to fix the three issues that prevented
 full correctness of (1). Unfortunately, the results don't seem to be that much
 better. =(
+
+
+(4) breakout_11-26-16-57_.csv and the corresopnding files pertain to (2), the
+baseline DQN using my code instead of spragnur's, but it should be eqwuivalent
+to (2). Basically I'm getting the control experiment set up correctly.
