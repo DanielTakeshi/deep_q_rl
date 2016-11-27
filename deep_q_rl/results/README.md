@@ -1,9 +1,9 @@
 Here are the file names:
 
-(1) breakout_11-25-20-26_.csv and log_11-25-20-26_.txt are the results and log
-file, respectively, of DQN with human-boosted data, on the NIPS settings except
-using 40000 steps per epoch, which is consistent with the baseline. This is NOT
-supposed to be finalized, because it's missing the following:
+(1) breakout_11-25-20-26_.csv and the corresponding files pertain to DQN with
+human-boosted data, on the NIPS settings except using 40000 steps per epoch,
+which is consistent with the baseline. This is NOT supposed to be finalized,
+because it's missing the following:
 
 - The human net was trained on sequences with frame skips 2, 3, and 4, but it
   should only be 4.
@@ -18,9 +18,15 @@ supposed to be finalized, because it's missing the following:
 Despite these flaws, this still looks like a good baseline to trian.
 
 
-(2) breakout_standard_dqn.csv and breakout_standard_dqn.png are the results file
-and image, respectively, for the baseline DQN, using spragnur's code, with
-settings consistent with NIPS except for the change to 40000 steps per epoch.
-(By doing this change I can make the code run in under a day.) This is good for
-a baseline, though to be REALLY safe, I should run the baseline using my
-modified version of spragnur's code, except it ignores the human net.
+(2) breakout_standard_dqn.csv and the associated image are for the baseline DQN,
+using spragnur's code, with settings consistent with NIPS except for the change
+to 40000 steps per epoch.  (By doing this change I can make the code run in
+under a day.) This is good for a baseline, though to be REALLY safe, I should
+run the baseline using my modified version of spragnur's code, except it ignores
+the human net.
+
+
+(3) breakout_11-26-11-19_.csv and the corresopnding files pertain to the revised
+version of (1) here, they're designed to fix the three issues that prevented
+full correctness of (1). Unfortunately, the results don't seem to be that much
+better. =(

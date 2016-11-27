@@ -5,7 +5,6 @@ are consistent with:
 
 Playing Atari with Deep Reinforcement Learning
 NIPS Deep Learning Workshop 2013
-
 """
 
 import launcher
@@ -63,7 +62,7 @@ class Defaults:
     # Daniel's extra parameters:
     # ----------------------
     USE_HUMAN_DATA = True
-    HUMAN_NET_PATH = "../human_nets/model_l2_0.01_epochs_30_bsize_32.npz" 
+    HUMAN_NET_PATH = "../human_nets/model_l1_0.0005_epochs_30_bsize_32.npz"
     # For now, to keep things simple, the epislon_min parameter from above
     # determines how many random actions. So with 0.1, for instance, we will
     # start out by playing 90% of actions determined from the human net, and
