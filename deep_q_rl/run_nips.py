@@ -17,7 +17,7 @@ class Defaults:
     # Daniel: I decreased this to 40000 for first run to get results quicker.
     # Otherwise, that was the only change with the settings (aside from the
     # extra parameters due to the human net).
-    STEPS_PER_EPOCH = 40000 
+    STEPS_PER_EPOCH = 1
     EPOCHS = 100
     STEPS_PER_TEST = 10000
 
@@ -61,7 +61,7 @@ class Defaults:
     # ----------------------
     # Daniel's extra parameters:
     # ----------------------
-    USE_HUMAN_DATA = False
+    USE_HUMAN_DATA = True
     HUMAN_NET_PATH = "../human_nets/model_l1_0.0005_epochs_30_bsize_32.npz"
     # For now, to keep things simple, the epislon_min parameter from above
     # determines how many random actions. So with 0.1, for instance, we will

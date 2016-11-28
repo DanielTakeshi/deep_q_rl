@@ -37,15 +37,14 @@ class ALEExperiment(object):
         self.screen_buffer = np.empty((self.buffer_length,
                                        self.height, self.width),
                                       dtype=np.uint8)
-
         self.terminal_lol = False # Most recent episode ended on a loss of life
         self.max_start_nullops = max_start_nullops
         self.rng = rng
 
+
     def run(self):
-        """
-        Run the desired number of training epochs, a testing epoch
-        is conducted after each training epoch.
+        """ Run the desired number of training epochs, a testing epoch is
+        conducted after each training epoch.  
         """
         for epoch in range(1, self.num_epochs + 1):
             self.run_epoch(epoch, self.epoch_length)
@@ -56,6 +55,7 @@ class ALEExperiment(object):
                 self.run_epoch(epoch, self.test_length, True)
                 self.agent.finish_testing(epoch)
 
+
     def run_epoch(self, epoch, num_steps, testing=False):
         """ Run one 'epoch' of training or testing, where an epoch is defined
         by the number of steps executed.  Prints a progress report after
@@ -65,7 +65,6 @@ class ALEExperiment(object):
         epoch - the current epoch number
         num_steps - steps per epoch
         testing - True if this Epoch is used for testing and not training
-
         """
         self.terminal_lol = False # Make sure each epoch starts with a reset.
         steps_left = num_steps
@@ -102,7 +101,6 @@ class ALEExperiment(object):
         """Perform the indicated action for a single frame, return the
         resulting reward and store the resulting screen image in the
         buffer
-
         """
         reward = self.ale.act(action)
         index = self.buffer_count % self.buffer_length
@@ -160,6 +158,7 @@ class ALEExperiment(object):
         max_image = np.maximum(self.screen_buffer[index, ...],
                                self.screen_buffer[index - 1, ...])
         return self.resize_image(max_image)
+
 
     def resize_image(self, image):
         """ Appropriately resize a single image """

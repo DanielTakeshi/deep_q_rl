@@ -220,7 +220,7 @@ def launch(args, defaults, description):
 
     if parameters.use_human_data:
         if (rom=='breakout' or rom=='breakout.bin'):
-            # **After** this gets applied, we have the mapping [0 1 3 4], which
+            # **After** this, we have the **second** mapping [0 1 3 4], which
             # is game-independent, so the main work is to set map_action_index.
             # Thus, 0 ==> 0 ==> 0 (NOOP)
             # Thus, 1 ==> 3 ==> 4 (LEFT)

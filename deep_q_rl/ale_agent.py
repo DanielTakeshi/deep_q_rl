@@ -196,7 +196,8 @@ class NeuralAgent(object):
     def _choose_action(self, data_set, epsilon, cur_img, reward, testing=False):
         """
         Add the most recent data to the data set and choose an action based on
-        the current policy.
+        the current policy. The first if statement is to ensure we have enough
+        frames to "fill in" a phi state.
 
         New in Daniel's version: utilize self.human_qnet as appropriate. That
         happens during the first case (self.step_counter is only to ensure that
@@ -216,7 +217,13 @@ class NeuralAgent(object):
             # value. If we have the human net, but are testing, then we will
             # also do this because we don't want the human net during tests.
             if self.human_qnet == None or testing:
-                action = self.network.choose_action(phi, epsilon)
+                #action = self.network.choose_action(phi, epsilon)
+                # New: let's see what happens if we follow my classifier.
+                r = np.random.rand()
+                if r < .05:
+                    action = self.rng.randint(0, self.num_actions)
+                else:
+                    action = self.human_qnet.predict_action_from_state(phi)
             else:
                 # Daniel: older code here was just one line:
                 #   action = self.network.choose_action(phi, epsilon)

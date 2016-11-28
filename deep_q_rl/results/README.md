@@ -35,3 +35,13 @@ better. =(
 (4) breakout_11-26-16-57_.csv and the corresopnding files pertain to (2), the
 baseline DQN using my code instead of spragnur's, but it should be eqwuivalent
 to (2). Basically I'm getting the control experiment set up correctly.
+
+
+(5) breakout_11-27-16-08_.csv and the corresponding files are something new: I
+decided to simply ignore the training and have the testing be done only on my
+classifier that was trained from game frames to actions. I set it to follow my
+net 95% of the time and the random action 5% of the time (needed to get FIRE
+actions to happen). The results are utter garbage. Hmmm ... perhaps I can better
+investigate the distribution of actions to see what's happening? By the way, to
+make this run fast, I simply set the number of steps in training to be 1, down
+from 40000 (which was down from 50000 from the NIPS version).
