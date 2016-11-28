@@ -15,7 +15,7 @@ because it's missing the following:
   is the same as what SPRAGNUR'S code did, because his code is converting it to
   grayscale.
 
-Despite these flaws, this still looks like a good baseline to trian.
+Despite these flaws, this still looks like a good baseline to train.
 
 
 (2) breakout_standard_dqn.csv and the associated image are for the baseline DQN,
@@ -26,14 +26,14 @@ run the baseline using my modified version of spragnur's code, except it ignores
 the human net.
 
 
-(3) breakout_11-26-11-19_.csv and the corresopnding files pertain to the revised
+(3) breakout_11-26-11-19_.csv and the corresponding files pertain to the revised
 version of (1) here, they're designed to fix the three issues that prevented
 full correctness of (1). Unfortunately, the results don't seem to be that much
 better. =(
 
 
-(4) breakout_11-26-16-57_.csv and the corresopnding files pertain to (2), the
-baseline DQN using my code instead of spragnur's, but it should be eqwuivalent
+(4) breakout_11-26-16-57_.csv and the corresponding files pertain to (2), the
+baseline DQN using my code instead of spragnur's, but it should be equivalent
 to (2). Basically I'm getting the control experiment set up correctly.
 
 
