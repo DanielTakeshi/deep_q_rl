@@ -70,7 +70,9 @@ class ALEExperiment(object):
 
         # New: let's have a fixed number of games per test epoch
         if testing:
-            for i in range(20):
+            prefix = "testing"
+            steps_left = num_steps
+            for i in range(30):
                 logging.info(prefix + " epoch: " + str(epoch) + " test_game: " +
                              str(i))
                 _, num_steps = self.run_episode(steps_left, testing)
