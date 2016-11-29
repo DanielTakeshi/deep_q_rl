@@ -217,13 +217,7 @@ class NeuralAgent(object):
             # value. If we have the human net, but are testing, then we will
             # also do this because we don't want the human net during tests.
             if self.human_qnet == None or testing:
-                #action = self.network.choose_action(phi, epsilon)
-                # New: let's see what happens if we follow my classifier.
-                r = np.random.rand()
-                if r < .05:
-                    action = self.rng.randint(0, self.num_actions)
-                else:
-                    action = self.human_qnet.predict_action_from_state(phi)
+                action = self.network.choose_action(phi, epsilon)
             else:
                 # Daniel: older code here was just one line:
                 #   action = self.network.choose_action(phi, epsilon)
