@@ -17,9 +17,10 @@ class Defaults:
     # Daniel: I decreased this to 40000 for first run to get results quicker.
     # Otherwise, that was the only change with the settings (aside from the
     # extra parameters due to the human net).
-    STEPS_PER_EPOCH = 1
+    STEPS_PER_EPOCH = 50000
     EPOCHS = 100
-    STEPS_PER_TEST = 10000
+    # NOTE: For now let's ignore this and do a fixed 25 games per test epoch?
+    STEPS_PER_TEST = 10000 
 
     # ----------------------
     # ALE Parameters
