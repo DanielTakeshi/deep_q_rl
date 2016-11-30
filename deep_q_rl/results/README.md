@@ -45,3 +45,16 @@ actions to happen). The results are utter garbage. Hmmm ... perhaps I can better
 investigate the distribution of actions to see what's happening? By the way, to
 make this run fast, I simply set the number of steps in training to be 1, down
 from 40000 (which was down from 50000 from the NIPS version).
+
+NEW, let's do testing but with a fixed amount of episodes per iteration. For
+this, I keep the testing steps to 10000 but ignore that during testing, and just
+call run_episode 30 times. I think this should work, so long as any single
+episode doesn't last for more than 10k steps (and for Breakout that shouldn't
+happen).
+
+(6) breakout_11-28-21-07_.csv and associated files are my method, with human net
+plugged inside DQN, except I ran the appropriate 50k training steps per epoch. I
+also did testing with a fixed 30 episodes per iteration.
+
+(7) breakout_11-29-08-20_.csv, same as (6) except it's using the control method,
+so default DQN.
