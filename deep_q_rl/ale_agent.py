@@ -31,12 +31,15 @@ class NeuralAgent(object):
         self.replay_start_size = replay_start_size
         self.update_frequency = update_frequency
         self.rng = rng
-        # Detect usage via "self.human_qnet != None"
-        self.human_qnet = human_qnet 
-
         self.phi_length = self.network.num_frames
         self.image_width = self.network.input_width
         self.image_height = self.network.input_height
+        self.num_actions = self.network.num_actions
+
+        # Daniel: some stuff I added. 
+        self.human_qnet = human_qnet # Detect via "self.human_qnet != None"
+        self.actions_train_ep = [0 for i in range(self.num_actions)]
+        self.actions_test_ep = [0 for i in range(self.num_actions)]
 
         # CREATE A FOLDER TO HOLD RESULTS
         time_str = time.strftime("_%m-%d-%H-%M_", time.localtime())
@@ -48,7 +51,6 @@ class NeuralAgent(object):
         except OSError:
             os.makedirs(self.exp_dir)
 
-        self.num_actions = self.network.num_actions
         self.data_set = ale_data_set.DataSet(width=self.image_width,
                                              height=self.image_height,
                                              rng=rng,
@@ -71,10 +73,10 @@ class NeuralAgent(object):
 
         self._open_results_file()
         self._open_learning_file()
+        self._open_actions_file()
 
         self.episode_counter = 0
         self.batch_counter = 0
-
         self.holdout_data = None
 
         # In order to add an element to the data set we need the
@@ -86,6 +88,7 @@ class NeuralAgent(object):
         # Exponential moving average of runtime performance.
         self.steps_sec_ema = 0.
 
+
     def _open_results_file(self):
         logging.info("OPENING " + self.exp_dir + '/results.csv')
         self.results_file = open(self.exp_dir + '/results.csv', 'w', 0)
@@ -93,10 +96,20 @@ class NeuralAgent(object):
             'epoch,num_episodes,total_reward,reward_per_epoch,mean_q\n')
         self.results_file.flush()
 
+
     def _open_learning_file(self):
         self.learning_file = open(self.exp_dir + '/learning.csv', 'w', 0)
         self.learning_file.write('mean_loss,epsilon\n')
         self.learning_file.flush()
+
+
+    def _open_actions_file(self):
+        self.actions_file = open(self.exp_dir + '/actions.csv', 'w', 0)
+        acts_train = ",".join(["tr_a_"+str(i) for i in range(self.num_actions)])
+        acts_test = ",".join(["te_a_"+str(i) for i in range(self.num_actions)])
+        self.actions_file.write('epoch,'+acts_train+','+acts_test+'\n')
+        self.actions_file.flush()
+
 
     def _update_results_file(self, epoch, num_episodes, holdout_sum):
         out = "{},{},{},{},{}\n".format(epoch, num_episodes, self.total_reward,
@@ -105,11 +118,32 @@ class NeuralAgent(object):
         self.results_file.write(out)
         self.results_file.flush()
 
+
     def _update_learning_file(self):
-        out = "{},{}\n".format(np.mean(self.loss_averages),
-                               self.epsilon)
+        out = "{},{}\n".format(np.mean(self.loss_averages), self.epsilon)
         self.learning_file.write(out)
         self.learning_file.flush()
+
+
+    def _update_actions_file(self, epoch):
+        """ This is mostly for debugging to see the distribution of actions.
+        This file gets updated after every testing epoch (like the results
+        file), but it will also add actions chosen during training.  We reset
+        the lists to 0 after each epoch. It doesn't include start_episode and
+        actions taken to fill in the 'phi's.
+        """
+        actions = str(self.actions_train_ep[0])
+        for a in self.actions_train_ep[1:]:
+            actions += ","+str(a)
+        for a in self.actions_test_ep:
+            actions += ","+str(a)
+        self.actions_train_ep = [0 for i in range(self.num_actions)]
+        self.actions_test_ep = [0 for i in range(self.num_actions)]
+
+        out = "{},{}\n".format(epoch,actions)
+        self.actions_file.write(out)
+        self.actions_file.flush()
+
 
     def start_episode(self, observation):
         """
@@ -121,9 +155,8 @@ class NeuralAgent(object):
            observation - height x width numpy array
 
         Returns:
-           An integer action
+           An integer action, within (0, 1, 2, ..., self.num_actions-1).
         """
-
         self.step_counter = 0
         self.batch_counter = 0
         self.episode_reward = 0
@@ -159,7 +192,7 @@ class NeuralAgent(object):
            observation - A height x width numpy array
 
         Returns:
-           An integer action.
+           An integer action, within (0, 1, 2, ..., self.num_actions-1).
         """
         self.step_counter += 1
 
@@ -169,12 +202,13 @@ class NeuralAgent(object):
             action = self._choose_action(self.test_data_set, .05,
                                          observation, np.clip(reward, -1, 1),
                                          testing=True)
+            self.actions_test_ep[action] += 1
+
         #NOT TESTING---------------------------
         else:
             if len(self.data_set) > self.replay_start_size:
                 self.epsilon = max(self.epsilon_min,
                                    self.epsilon - self.epsilon_rate)
-
                 action = self._choose_action(self.data_set, self.epsilon,
                                              observation,
                                              np.clip(reward, -1, 1))
@@ -182,6 +216,7 @@ class NeuralAgent(object):
                     loss = self._do_training()
                     self.batch_counter += 1
                     self.loss_averages.append(loss)
+                self.actions_train_ep[action] += 1
                 
             else: # Still gathering initial random data...
                 action = self._choose_action(self.data_set, self.epsilon,
@@ -323,6 +358,7 @@ class NeuralAgent(object):
 
         self._update_results_file(epoch, self.episode_counter,
                                   holdout_sum / holdout_size)
+        self._update_actions_file(epoch)
 
 
 if __name__ == "__main__":
