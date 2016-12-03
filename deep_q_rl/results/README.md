@@ -58,3 +58,8 @@ also did testing with a fixed 30 episodes per iteration.
 
 (7) breakout_11-29-08-20_.csv, same as (6) except it's using the control method,
 so default DQN.
+
+-- NATURE --
+
+(8) breakout_12-01-21-52_.csv an corresponding files are Breakout, default DQN, with
+the NATURE settings.
