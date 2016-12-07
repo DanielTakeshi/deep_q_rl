@@ -61,5 +61,11 @@ so default DQN.
 
 -- NATURE --
 
-(8) breakout_12-01-21-52_.csv an corresponding files are Breakout, default DQN, with
+(8) breakout_12-01-21-52_.csv and corresponding files are Breakout, default DQN, with
 the NATURE settings.
+
+(9) breakout_12-04-22-06_.txt and corresponding files are Breakout, WITH HUMAN-GUIDED
+NET, with NATURE settings (so use the Nature stuff).
+
+(10) space_invaders_12-03-10-27_.csv and corresponding files are Space Invaders,
+default DQN, NATURE settings.
