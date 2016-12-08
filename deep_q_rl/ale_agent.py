@@ -293,7 +293,9 @@ class NeuralAgent(object):
         {'imgs', 'actions', 'rewards'}. Each will refer to a numpy array.
         """
         N = len(self.human_exp_replay['rewards'])
-        indices = np.random.choice(np.arange(N), size=n, replace=False)
+        #indices = np.random.choice(np.arange(N), size=n, replace=False)
+        i = np.random.randint(low=0,high=N-n)
+        indices = np.arange(i,i+n)
         return self.human_exp_replay['imgs'][indices], \
                self.human_exp_replay['actions'][indices].reshape((n,1)), \
                self.human_exp_replay['rewards'][indices].reshape((n,1))
@@ -309,24 +311,12 @@ class NeuralAgent(object):
         human experience data. Right now, 'terminals' is ignored.
 
         Args:
-            epoch: The current epoch (ranges from 0 to max_epochs-1).
+            epoch: The current epoch (ranges from 1 to max_epochs).
         """
         if self.use_human_exp_replay:
-            ratio = (self.max_epochs - (epoch+1)) / self.max_epochs
-            num_human = int(ratio * self.network.batch_size)
-            num_agent = self.network.batch_size - num_human
-
-            # Take data from self.human_exp_data and normal dataset.
-            imgs1, actions1, rewards1 = self._human_data_random(num_human)
-            imgs2, actions2, rewards2, _ = self.data_set.random_batch(num_agent)
-
-            # Now let's combine the datasets. Just make terminals new.
-            imgs = np.vstack((imgs1, imgs2))
-            actions = np.vstack((actions1, actions2))
-            rewards = np.vstack((rewards1, rewards2))
-            terminals = np.zeros((self.network.batch_size,1), dtype='bool')
-            assert len(actions) == self.network.batch_size
-            assert len(rewards) == self.network.batch_size
+            print("Error, self.use_human_exp_replay is not yet fast enough.")
+            print("Maybe I better modify the dataset class?")
+            sys.exit()
         else:
             imgs, actions, rewards, terminals = \
                     self.data_set.random_batch(self.network.batch_size)
