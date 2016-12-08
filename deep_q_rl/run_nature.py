@@ -67,7 +67,7 @@ class Defaults:
     USE_HUMAN_NET = False
     HUMAN_NET_PATH = "../human_nets/model_l2_0.01_epochs_30_bsize_32.npz"
     USE_HUMAN_EXPERIENCE_REPLAY = True
-    HUMAN_EXPERIENCE_REPLAY_PATH = "../human_xp/breakout-human_experience_replay.npz"
+    HUMAN_EXPERIENCE_REPLAY_PATH = "../human_xp/breakout-human_experience_replay_small.npz"
     # For now, to keep things simple, the epislon_min parameter from above
     # determines how many random actions. So with 0.1, for instance, we will
     # start out by playing 90% of actions determined from the human net, and
