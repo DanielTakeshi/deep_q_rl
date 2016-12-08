@@ -72,7 +72,7 @@ class ALEExperiment(object):
             prefix = "testing" if testing else "training"
             logging.info(prefix + " epoch: " + str(epoch) + " steps_left: " +
                          str(steps_left))
-            _, num_steps = self.run_episode(steps_left, testing)
+            _, num_steps = self.run_episode(steps_left, testing, epoch)
 
             steps_left -= num_steps
 
@@ -120,7 +120,7 @@ class ALEExperiment(object):
         return reward
 
 
-    def run_episode(self, max_steps, testing):
+    def run_episode(self, max_steps, testing, epoch):
         """Run a single training episode.
 
         The boolean terminal value returned indicates whether the
@@ -146,7 +146,7 @@ class ALEExperiment(object):
                 self.agent.end_episode(reward, terminal)
                 break
 
-            action = self.agent.step(reward, self.get_observation())
+            action = self.agent.step(reward, self.get_observation(), epoch)
         return terminal, num_steps
 
 

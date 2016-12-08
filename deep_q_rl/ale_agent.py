@@ -19,8 +19,9 @@ class NeuralAgent(object):
 
     def __init__(self, q_network, epsilon_start, epsilon_min,
                  epsilon_decay, replay_memory_size, exp_pref,
-                 replay_start_size, update_frequency, rng, 
-                 human_qnet=None):
+                 replay_start_size, update_frequency, rng, max_epochs,
+                 use_human_net=False, use_human_exp_replay=False,
+                 human_net=None, human_exp_replay=None):
 
         self.network = q_network
         self.epsilon_start = epsilon_start
@@ -37,7 +38,14 @@ class NeuralAgent(object):
         self.num_actions = self.network.num_actions
 
         # Daniel: some stuff I added. 
-        self.human_qnet = human_qnet # Detect via "self.human_qnet != None"
+        self.max_epochs = max_epochs
+        self.use_human_net = use_human_net
+        if self.use_human_net:
+            self.human_net = human_net
+        self.use_human_exp_replay = use_human_exp_replay
+        if self.use_human_exp_replay:
+            self.human_exp_replay = human_exp_replay
+        assert (self.use_human_net == False) or (self.use_human_exp_replay == False)
         self.actions_train_ep = [0 for i in range(self.num_actions)]
         self.actions_test_ep = [0 for i in range(self.num_actions)]
 
@@ -183,13 +191,14 @@ class NeuralAgent(object):
         plt.show()
 
 
-    def step(self, reward, observation):
+    def step(self, reward, observation, epoch):
         """
         This method is called each time step.
 
         Arguments:
            reward      - Real valued reward.
            observation - A height x width numpy array
+           epoch       - The current epoch
 
         Returns:
            An integer action, within (0, 1, 2, ..., self.num_actions-1).
@@ -213,7 +222,7 @@ class NeuralAgent(object):
                                              observation,
                                              np.clip(reward, -1, 1))
                 if self.step_counter % self.update_frequency == 0:
-                    loss = self._do_training()
+                    loss = self._do_training(epoch)
                     self.batch_counter += 1
                     self.loss_averages.append(loss)
                 self.actions_train_ep[action] += 1
@@ -251,7 +260,7 @@ class NeuralAgent(object):
             # action selected from the network with the appropriate epsilon
             # value. If we have the human net, but are testing, then we will
             # also do this because we don't want the human net during tests.
-            if self.human_qnet == None or testing:
+            if (not self.use_human_net) or testing:
                 action = self.network.choose_action(phi, epsilon)
             else:
                 # Daniel: older code here was just one line:
@@ -268,7 +277,7 @@ class NeuralAgent(object):
                 if r < self.epsilon_min:
                     action = self.rng.randint(0, self.num_actions)
                 elif r < epsilon:
-                    action = self.human_qnet.predict_action_from_state(phi)
+                    action = self.human_net.predict_action_from_state(phi)
                 else:
                     action = self.network.choose_action(phi, epsilon=0)
         else:
@@ -277,15 +286,52 @@ class NeuralAgent(object):
         return action
 
 
-    def _do_training(self):
+    def _human_data_random(self, n):
+        """ Extract n points at random from the human dataset.
+        
+        The human experience data needs to be a dictionary with the keys:
+        {'imgs', 'actions', 'rewards'}. Each will refer to a numpy array.
         """
-        Returns the average loss for the current batch.
-        May be overridden if a subclass needs to train the network
-        differently.
+        imgs = self.human_exp_replay['imgs']
+        actions = self.human_exp_replay['actions']
+        rewards = self.human_exp_replay['rewards']
+        N = len(images)
+        assert n < N
+        indices = np.random.choice(np.arange(N), size=n, replace=False)
+        return imgs[indices], actions[indices].reshape((n,1)), \
+                              rewards[indices].reshape((n,1))
+
+
+    def _do_training(self, epoch):
         """
-        imgs, actions, rewards, terminals = \
-                                self.data_set.random_batch(
-                                    self.network.batch_size)
+        Returns the average loss for the current batch.  May be overridden if a
+        subclass needs to train the network differently.
+
+        Update: this also does human experience replay. If we are using human
+        experience replay, we will take a subset of the batch size from the
+        human experience data. Right now, 'terminals' is ignored.
+
+        Args:
+            epoch: The current epoch (ranges from 0 to max_epochs-1).
+        """
+        if self.use_human_exp_replay:
+            ratio = (self.max_epochs - epoch) / self.max_epochs
+            num_human = int(ratio * self.network.batch_size)
+            num_agent = self.network.batch_size - num_human
+
+            # Take data from self.human_exp_data and normal dataset.
+            imgs1, actions1, rewards1 = self._human_data_random(num_human)
+            imgs2, actions2, rewards2, _ = self.data_set.random_batch(num_agent)
+
+            # Now let's combine the datasets. Just make terminals new.
+            imgs = np.vstack((imgs1, imgs2))
+            actions = np.vstack((actions1, actions2))
+            rewards = np.vstack((rewards1, rewards2))
+            terminals = np.zeros((self.network.batch_size,1), dtype='bool')
+            assert len(images) == self.network.batch_size
+        else:
+            imgs, actions, rewards, terminals = \
+                    self.data_set.random_batch(self.network.batch_size)
         return self.network.train(imgs, actions, rewards, terminals)
 
 

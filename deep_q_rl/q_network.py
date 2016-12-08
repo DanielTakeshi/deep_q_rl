@@ -176,7 +176,6 @@ class DeepQLearner:
 
         Returns: average loss
         """
-
         self.imgs_shared.set_value(imgs)
         self.actions_shared.set_value(actions)
         self.rewards_shared.set_value(rewards)

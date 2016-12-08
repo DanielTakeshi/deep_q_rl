@@ -141,13 +141,20 @@ def process_args(args, defaults, description):
                         type=bool, default=defaults.CUDNN_DETERMINISTIC,
                         help=('Whether to use deterministic backprop. ' +
                               '(default: %(default)s)'))
-    # Extra parameters for the "human-guided net."
-    parser.add_argument('--use_human_data', dest="use_human_data", type=bool,
-                        default=defaults.USE_HUMAN_DATA, help=('Whether to '+
-                        'use data from humans. (default: %(default)s)'))
-    parser.add_argument('--human_net_path', dest="human_net_path", type=str,
-                        default=defaults.HUMAN_NET_PATH, help=('The human net '+
-                        'to run (default: %(default)s)'))
+
+    # Extra parameters for the "human-guided net" and "human experience replay."
+    parser.add_argument('--use_human_net', dest="use_human_net", 
+                        type=bool, default=defaults.USE_HUMAN_NET, 
+                        help=('Whether to use the human net. (default: %(default)s)'))
+    parser.add_argument('--human_net_path', dest="human_net_path", 
+                        type=str, default=defaults.HUMAN_NET_PATH, 
+                        help=('The human net path (default: %(default)s)'))
+    parser.add_argument('--use_human_experience_replay', dest="use_human_experience_replay", 
+                        type=bool, default=defaults.USE_HUMAN_EXPERIENCE_REPLAY,
+                        help=('Whether to use human experience replay. (default: %(default)s)'))
+    parser.add_argument('--human_experience_replay_path', dest="human_experience_replay_path", 
+                        type=str, default=defaults.HUMAN_EXPERIENCE_REPLAY_PATH, 
+                        help=('The human experience replay path (default: %(default)s)'))
 
     parameters = parser.parse_args(args)
     if parameters.experiment_prefix is None:
@@ -216,9 +223,11 @@ def launch(args, defaults, description):
     # But how should these get mapped to ALE actions? I know 0=noop, 1=fire.
     # Keep in mind that there's a SECOND mapping that happens after this!
     map_action_index = None 
-    human_qnet = None
+    human_net = None
+    human_experience_replay = None
 
-    if parameters.use_human_data:
+    # Daniel: extra parameter 1
+    if parameters.use_human_net:
         if (rom=='breakout' or rom=='breakout.bin'):
             # **After** this, we have the **second** mapping [0 1 3 4], which
             # is game-independent, so the main work is to set map_action_index.
@@ -229,14 +238,21 @@ def launch(args, defaults, description):
             map_action_index = {0:0, 1:3, 2:2}
         else:
             raise ValueError("rom={} doesn't have action mapping".format(rom))
-        human_qnet = human_q_net.HumanQNetwork(defaults.RESIZED_WIDTH,
-                                               defaults.RESIZED_HEIGHT,
-                                               num_actions,
-                                               parameters.phi_length,
-                                               parameters.batch_size,
-                                               parameters.network_type,
-                                               parameters.human_net_path,
-                                               map_action_index)
+        human_net = human_q_net.HumanQNetwork(defaults.RESIZED_WIDTH,
+                                              defaults.RESIZED_HEIGHT,
+                                              num_actions,
+                                              parameters.phi_length,
+                                              parameters.batch_size,
+                                              parameters.network_type,
+                                              parameters.human_net_path,
+                                              map_action_index)
+
+    # Daniel: extra parameter 2
+    if parameters.use_human_experience_replay:
+        if (rom=='breakout' or rom=='breakout.bin'):
+            human_experience_replay = np.load(parameters.human_experience_replay_path)
+        else:
+            raise ValueError("rom={} doesn't have action mapping".format(rom))
 
     if parameters.nn_file is None:
         network = q_network.DeepQLearner(defaults.RESIZED_WIDTH,
@@ -267,7 +283,12 @@ def launch(args, defaults, description):
                                   parameters.experiment_prefix,
                                   parameters.replay_start_size,
                                   parameters.update_frequency,
-                                  rng, human_qnet)
+                                  rng, 
+                                  parameters.epochs,
+                                  parameters.use_human_net,
+                                  parameters.use_human_experience_replay,
+                                  human_net,
+                                  human_experience_replay)
 
     experiment = ale_experiment.ALEExperiment(ale, agent,
                                               defaults.RESIZED_WIDTH,

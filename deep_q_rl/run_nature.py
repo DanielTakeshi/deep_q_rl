@@ -64,8 +64,10 @@ class Defaults:
     # ----------------------
     # Daniel's extra parameters:
     # ----------------------
-    USE_HUMAN_DATA = True
+    USE_HUMAN_NET = False
     HUMAN_NET_PATH = "../human_nets/model_l2_0.01_epochs_30_bsize_32.npz"
+    USE_HUMAN_EXPERIENCE_REPLAY = False
+    HUMAN_EXPERIENCE_REPLAY_PATH = "..."
     # For now, to keep things simple, the epislon_min parameter from above
     # determines how many random actions. So with 0.1, for instance, we will
     # start out by playing 90% of actions determined from the human net, and
@@ -73,6 +75,9 @@ class Defaults:
     # Q-learner). In other words, always leave 10% of actions for random
     # choices, which helps when certain actions are only supposed to be executed
     # O(1) times, such as FIRE in Breakout.
+    #
+    # Update: I'm adding human experience replay. This also needs to be
+    # annealed according to some formula.
 
 if __name__ == "__main__":
     launcher.launch(sys.argv[1:], Defaults, __doc__)
