@@ -295,7 +295,7 @@ class NeuralAgent(object):
         imgs = self.human_exp_replay['imgs']
         actions = self.human_exp_replay['actions']
         rewards = self.human_exp_replay['rewards']
-        N = len(images)
+        N = len(imgs)
         assert n < N
         indices = np.random.choice(np.arange(N), size=n, replace=False)
         return imgs[indices], actions[indices].reshape((n,1)), \
@@ -315,20 +315,22 @@ class NeuralAgent(object):
             epoch: The current epoch (ranges from 0 to max_epochs-1).
         """
         if self.use_human_exp_replay:
-            ratio = (self.max_epochs - epoch) / self.max_epochs
+            ratio = (self.max_epochs - (epoch+1)) / self.max_epochs
             num_human = int(ratio * self.network.batch_size)
             num_agent = self.network.batch_size - num_human
 
             # Take data from self.human_exp_data and normal dataset.
             imgs1, actions1, rewards1 = self._human_data_random(num_human)
             imgs2, actions2, rewards2, _ = self.data_set.random_batch(num_agent)
+            logging.info("epoch={}, num_human={}, num_agent={}".format(
+                epoch, num_human, num_agent))
 
             # Now let's combine the datasets. Just make terminals new.
             imgs = np.vstack((imgs1, imgs2))
             actions = np.vstack((actions1, actions2))
             rewards = np.vstack((rewards1, rewards2))
             terminals = np.zeros((self.network.batch_size,1), dtype='bool')
-            assert len(images) == self.network.batch_size
+            assert len(imgs) == self.network.batch_size
         else:
             imgs, actions, rewards, terminals = \
                     self.data_set.random_batch(self.network.batch_size)
