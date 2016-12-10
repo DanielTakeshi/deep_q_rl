@@ -31,17 +31,14 @@ class HumanQNetwork:
         # Use same method to make net as DQN, but also establish weights.  I
         # think this works, only thing different from my other code is that it
         # doesn't have an 'input_var' at the first layer. IDK if that matters.
-        #
-        # UPDATE! Breakout specific, I'm using self.num_actions-1 because my
-        # network uses 3 actions but spragnur's has to use 4. Yeah this is
-        # really bad, should improve this but it's a temporary workaround.
+        # Be careful with the self.num_actions variable!!
         #
         # Also, to keep code as general as possible, use T.tensor.4 but also
         # change 'phi' to be 4-dimensional, i.e. add an extra array by wrapping
         # this in a list and converting to a numpy array.
         self.input_var = T.tensor4('inputs') 
         self.net = make_net.build_network(self.network_type, self.input_width,
-                                          self.input_height, self.num_actions-1,
+                                          self.input_height, self.num_actions,
                                           self.num_frames, self.batch_size,
                                           human_net=True, input_var=self.input_var)
         self._establish_weights()
