@@ -64,8 +64,8 @@ class Defaults:
     # ----------------------
     # Daniel's extra parameters:
     # ----------------------
-    USE_HUMAN_NET = False
-    HUMAN_NET_PATH = "../human_nets/model_l2_0.01_epochs_30_bsize_32.npz"
+    USE_HUMAN_NET = True
+    HUMAN_NET_PATH = "../human_nets/spaceinv_nature_model_l1_0.0005_epochs_30_bsize_32.npz"
     USE_HUMAN_EXPERIENCE_REPLAY = False
     HUMAN_EXPERIENCE_REPLAY_PATH = "../human_xp/breakout-human_experience_replay.npz"
     # For now, to keep things simple, the epislon_min parameter from above

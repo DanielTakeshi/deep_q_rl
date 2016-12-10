@@ -1,7 +1,13 @@
-Put human nets here from my other code (in npz format).
+Put human nets here from my other code (in npz format).  Be careful about naming
+conventions!
 
-Be careful about naming conventions!
+Breakout stuff:
 
-model_l1_0.0005_epochs_30_bsize_32.npz is the NIPS version of BREAKOUT.
-model_l2_0.01_epochs_30_bsize_32.npz is the NATURE version of BREAKOUT.
+- breakout_nips_model_l1_0.0005_epochs_30_bsize_32.npz (NIPS version)
+- breakout_nature_model_l2_0.01_epochs_30_bsize_32.npz (NATURE version, but it
+  was actually trained using the NIPS cropping method ... TODO fix!!)
+
+Space Invaders stuff:
+
+- spaceinv_nature_model_l1_0.0005_epochs_30_bsize_32.npz (NATURE version)
 

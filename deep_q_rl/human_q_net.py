@@ -27,6 +27,7 @@ class HumanQNetwork:
         self.network_type = network_type
         self.human_net_path = human_net_path
         self.map_action_index = map_action_index
+        assert len(self.map_action_index) == self.num_actions
 
         # Use same method to make net as DQN, but also establish weights.  I
         # think this works, only thing different from my other code is that it
@@ -67,7 +68,7 @@ class HumanQNetwork:
             An integer representing the action to take.
         """
         a_probabilities = self.predict_fxn( np.array([phi]) ) # ADD DIMENSION!!
-        assert len(a_probabilities[0]) == 3
+        assert len(a_probabilities[0]) == self.num_actions
         return self.map_action_index[ np.argmax(a_probabilities) ]
 
 

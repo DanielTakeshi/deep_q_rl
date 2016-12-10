@@ -217,6 +217,10 @@ def launch(args, defaults, description):
     ale.loadROM(full_rom_path)
     num_actions = len(ale.getMinimalActionSet())
 
+    ######################################################
+    # Daniel: This is where I insert human-guided stuff. #
+    ######################################################
+
     # Logic to deal with loading a separate network trained on human data.
     # Must also address mapping from human net (0,1,2,...) to ALE.
     # I know that, for Breakout, my {0,1,2} correspond to {NOOP,LEFT,RIGHT}.
@@ -226,7 +230,6 @@ def launch(args, defaults, description):
     human_net = None
     human_experience_replay = None
 
-    # Daniel: extra parameter 1
     if parameters.use_human_net:
         if (rom=='breakout' or rom=='breakout.bin'):
             # This maps the action indices from the net (0,1,2,...) into a
@@ -237,36 +240,32 @@ def launch(args, defaults, description):
             # Thus, 2 ==> 2 ==> 3 (RIGHT)
             # (The net doesn't use FIRE.)
             map_action_index = {0:0, 1:3, 2:2}
-            human_net = human_q_net.HumanQNetwork(defaults.RESIZED_WIDTH,
-                                                  defaults.RESIZED_HEIGHT,
-                                                  num_actions-1, # No fire
-                                                  parameters.phi_length,
-                                                  parameters.batch_size,
-                                                  parameters.network_type,
-                                                  parameters.human_net_path,
-                                                  map_action_index)
         elif (rom=='space_invaders' or rom=='space_invaders.bin'):
             # Second mapping is [0 1 3 4 11 12] E.g., 4 is FLEFT in my data,
             # needs to be mapped to index 5 so it results in '12'.
             map_action_index = {0:0, 1:1, 2:3, 3:2, 4:5, 5:4}
-            human_net = human_q_net.HumanQNetwork(defaults.RESIZED_WIDTH,
-                                                  defaults.RESIZED_HEIGHT,
-                                                  num_actions, # All actions
-                                                  parameters.phi_length,
-                                                  parameters.batch_size,
-                                                  parameters.network_type,
-                                                  parameters.human_net_path,
-                                                  map_action_index)
         else:
             raise ValueError("rom={} doesn't have action mapping".format(rom))
 
+        # Let's make the human net; #actions = len(map_action_index).
+        human_net = human_q_net.HumanQNetwork(defaults.RESIZED_WIDTH,
+                                              defaults.RESIZED_HEIGHT,
+                                              len(map_action_index),
+                                              parameters.phi_length,
+                                              parameters.batch_size,
+                                              parameters.network_type,
+                                              parameters.human_net_path,
+                                              map_action_index)
 
-    # Daniel: extra parameter 2
     if parameters.use_human_experience_replay:
         if (rom=='breakout' or rom=='breakout.bin'):
             human_experience_replay = np.load(parameters.human_experience_replay_path)
         else:
             raise ValueError("rom={} doesn't have xp replay".format(rom))
+
+    ###########################
+    # Daniel: Back to normal. #
+    ###########################
 
     if parameters.nn_file is None:
         network = q_network.DeepQLearner(defaults.RESIZED_WIDTH,
