@@ -70,3 +70,7 @@ distribution!
 
 (10) space_invaders_12-03-10-27_.csv and corresponding files are Space Invaders,
 default DQN, NATURE settings. I have the action distribution!
+
+(11) breakout_12-08-08-51_.csv and related files are my re-do of (8), so I have
+the action distribution. Yay! I had to do this while I was getting my Space
+Invaders data ready.
