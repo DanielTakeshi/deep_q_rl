@@ -62,7 +62,8 @@ so default DQN.
 -- NATURE --
 
 (8) breakout_12-01-21-52_.csv and corresponding files are Breakout, default DQN, with
-the NATURE settings. I don't have the action distribution. :(
+the NATURE settings. I don't have the action distribution. :( [EDIT, just ignore
+this one now ...]
 
 (9) breakout_12-04-22-06_.csv and corresponding files are Breakout, WITH HUMAN-GUIDED
 NET, with NATURE settings (so use the Nature stuff). I have the action
@@ -74,3 +75,6 @@ default DQN, NATURE settings. I have the action distribution!
 (11) breakout_12-08-08-51_.csv and related files are my re-do of (8), so I have
 the action distribution. Yay! I had to do this while I was getting my Space
 Invaders data ready.
+
+(12) space_invaders_12-10-10-50_.csv and supporting files are Space Invaders
+with the human-guided version version.

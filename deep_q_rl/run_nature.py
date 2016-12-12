@@ -16,7 +16,7 @@ class Defaults:
     # Experiment Parameters
     # ----------------------
     STEPS_PER_EPOCH = 250000
-    EPOCHS = 200
+    EPOCHS = 80 # changed from 200
     STEPS_PER_TEST = 125000
 
     # ----------------------
@@ -48,7 +48,7 @@ class Defaults:
     EPSILON_DECAY = 1000000
     PHI_LENGTH = 4
     UPDATE_FREQUENCY = 4
-    REPLAY_MEMORY_SIZE = 1000000
+    REPLAY_MEMORY_SIZE = 10000000 # 10 million
     BATCH_SIZE = 32
     NETWORK_TYPE = "nature_dnn"
     FREEZE_INTERVAL = 10000
