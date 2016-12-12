@@ -78,3 +78,6 @@ Invaders data ready.
 
 (12) space_invaders_12-10-10-50_.csv and supporting files are Space Invaders
 with the human-guided version version.
+
+(13) space_invaders_12-11-21-19_.csv is the same as (12), human guided, but
+w/10x longer exploration and 80 epochs.
