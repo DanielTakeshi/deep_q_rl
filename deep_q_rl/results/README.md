@@ -81,3 +81,11 @@ with the human-guided version version.
 
 (13) space_invaders_12-11-21-19_.csv is the same as (12), human guided, but
 w/10x longer exploration and 80 epochs.
+
+(14) space_invaders_12-12-15-10_.csv is the same as (10) so default DQN with 10x
+longer exploration and 80 epochs.
+
+Thus, what I should do is compare (13) and (14) for my last set of figures in
+the paper. But before that, I should compure (9),(11) for Breakout and (10),(12)
+for Space Invaders. The files from (9) through (12) use the shorter exploration
+period with 200 epochs, though!
